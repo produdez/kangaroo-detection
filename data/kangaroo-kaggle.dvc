@@ -1,0 +1,5 @@
+outs:
+- md5: 3d6ddfbf24daa68c8f47c44cc4b3c7bf.dir
+  size: 77067683
+  nfiles: 666
+  path: kangaroo-kaggle
