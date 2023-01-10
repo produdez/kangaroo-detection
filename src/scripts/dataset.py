@@ -27,8 +27,8 @@ class KangarooDataset(Dataset):
 	def load_data(self, dataset_dir, is_train=True):
 		self.add_class(self.source, 1, 'kangaroo')
 
-		images_dir = dataset_dir + 'images/'
-		annotations_dir = dataset_dir + 'annots/'
+		images_dir = dataset_dir + '/images'
+		annotations_dir = dataset_dir + '/annots'
 
 		for filename in listdir(images_dir):
 			# get image id

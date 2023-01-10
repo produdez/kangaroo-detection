@@ -1,0 +1,49 @@
+schema: '2.0'
+stages:
+  environment-check:
+    cmd:
+    - python -m src.pipeline.environment_check --env_name=kangaroo > out/environment-check.out.txt
+    outs:
+    - path: out/environment-check.out.txt
+      md5: c3dbf49743c04f4ff7cb00ede3348837
+      size: 574
+  activate-environment:
+    cmd:
+    - conda activate kangaroo
+    - echo %CONDA_DEFAULT_ENV% > out/activate-environment.out.log
+    outs:
+    - path: out/activate-environment.out.log
+      md5: ee9e762dca463f22b5e8ec0f982f5b63
+      size: 22
+  activate:
+    cmd: conda activate kangaroo > out/activate-environment.out.log
+    outs:
+    - path: out/activate-environment.out.log
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+  train-model:
+    cmd: "python -m src.pipeline.train_model --data_path=\"data/kangaroo\" --model_src=\"\
+      src/submodules/akTwelve_MaskRCNN\" --model_config=\"./model.config.yaml\" >\
+      \ out/model-train.txt\n"
+    deps:
+    - path: ./model.config.yaml
+      md5: ed1dde931e083a46c51642945a04de32
+      size: 406
+    - path: data/kangaroo
+      md5: 5cee4ad80d27b4d314c5d6b9fa1c25ce.dir
+      size: 19791935
+      nfiles: 329
+    - path: model/transfer/mask_rcnn_coco.h5
+      md5: e98aaff6f99e307b5e2a8a3ff741a518
+      size: 257557808
+    - path: out/environment-check.out.txt
+      md5: c3dbf49743c04f4ff7cb00ede3348837
+      size: 574
+    - path: src/submodules/akTwelve_MaskRCNN
+      md5: b23ca475d93fdf42973fddf6c512e7fe.dir
+      size: 90619720
+      nfiles: 78
+    outs:
+    - path: out/model-train.txt
+      md5: a23dec9544810e68b42212cb9308edcf
+      size: 557

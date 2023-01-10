@@ -1,0 +1,9 @@
+environment:
+  name: kangaroo
+
+train:
+  config: './model.config.yaml'
+  model: 
+    src: 'src/submodules/akTwelve_MaskRCNN'
+  data:
+    path: 'data/kangaroo'

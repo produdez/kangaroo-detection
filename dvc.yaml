@@ -1,0 +1,25 @@
+stages:
+  environment-check:
+    cmd: 
+      - python -m src.pipeline.environment_check --env_name=${environment.name} > out/environment-check.out.txt
+    outs:
+      - out/environment-check.out.txt
+    always_changed: True
+
+  train-model:
+    cmd: > 
+      python -m src.pipeline.train_model
+      --data_path="${train.data.path}"
+      --model_src="${train.model.src}"
+      --model_config="${train.config}"
+    deps:
+      # > out/model-train.txt
+      - out/environment-check.out.txt # previous stage dep
+      - ${train.data.path}
+      - ${train.model.src}
+      - ${train.config}
+      - model/transfer/mask_rcnn_coco.h5
+    outs:
+      - out/model-train.txt
+
+
