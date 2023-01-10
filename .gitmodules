@@ -1,3 +1,9 @@
 [submodule "src/submodules/akTwelve_MaskRCNN"]
 	path = src/submodules/akTwelve_MaskRCNN
 	url = https://github.com/akTwelve/Mask_RCNN.git
+[submodule "src/submodules/original_MaskRCNN"]
+	path = src/submodules/original_MaskRCNN
+	url = https://github.com/matterport/Mask_RCNN.git
+[submodule "src/submodules/ahmed_tf2_MaskRCNN"]
+	path = src/submodules/ahmed_tf2_MaskRCNN
+	url = https://github.com/ahmedfgad/Mask-RCNN-TF2.git
