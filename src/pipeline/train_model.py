@@ -1,38 +1,55 @@
 from src.utils.arguments import setup_args
-from pprint import pprint
 args = setup_args({
 	'data_path' : 'Path of training data to load',
 	'model_src' : 'Model\'s source code directory',
-	'model_config' : 'Model\'s configuration file'
+	'model_config' : 'Model\'s configuration file',
+	'training_dir' : 'Training directory to save training checkpoints/logs !',
+	'summary' : 'Summary file path',
+	'model_output' : 'Where to save finished training weights',
+	'metric' : 'Training time saved in json'
 })
-pprint(args)
 
 import sys
-sys.path.append(args.get('model_src'))
-from src.scripts.dataset import KangarooDataset
+sys.path.append(args['model_src'])
 
-data_path = args.get('data_path')
-train_set = KangarooDataset()
-train_set.load_data(data_path)
-train_set.prepare()
-val_set = KangarooDataset()
-val_set.load_data(data_path, is_train=False)
-val_set.prepare()
-print(f'train-size: ', len(train_set.image_ids))
-print(f'val-size: ', len(val_set.image_ids))
+from src.scripts.dataset import load_train_val
+train_set, val_set = load_train_val(args['data_path'])
 
 
-# import dvc.api as api
+from src.scripts.config import CustomConfig
+from src.utils.config import load_config
+config_dict = load_config(args['model_config'])['train']
+config = CustomConfig(config_dict['model-config'])
+config.display()
 
-# params = api.params_show()
-# print('PARAMS: ', params)
-import yaml
 
-# Function to load yaml configuration file
-def load_config():
-    with open(args.get('model_config')) as file:
-        config = yaml.safe_load(file)
+from mrcnn.model import MaskRCNN
+model = MaskRCNN(mode='training', model_dir=args['training_dir'], config=config)
+weight_config = config_dict['weights']
+model.load_weights(
+	weight_config['init'], 
+	by_name=True,
+	exclude=weight_config['exclude']
+)
 
-    return config
-config = load_config()
-print('Model config: ', config)
+with open(args['summary'], 'w+') as f:
+	model.keras_model.summary(print_fn=lambda x: f.write(x + '\n'))
+
+from src.utils.benchmark import bench
+
+training_benchmark = bench(
+	'Training', model.train,
+	train_set, val_set, 
+	learning_rate = config.LEARNING_RATE, 
+	epochs=config_dict['epochs'], 
+	layers = config_dict['layers']
+)
+
+model.keras_model.save_weights(args['model_output'])
+
+from src.utils.output import write_file
+metrics = {
+	'train_time': training_benchmark['time']
+}
+write_file(args['metric'], metrics, 'json')
+
