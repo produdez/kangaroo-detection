@@ -1,4 +1,12 @@
 stages:
+  gen-dag:
+    cmd:
+      - dvc dag --full --md >> ${gen-dag.output}
+      - dvc dag -o --md >> ${gen-dag.output}
+    always_changed: true
+    outs:
+      - ${gen-dag.output}
+
   environment-check:
     cmd: >
       python -m src.pipeline.environment_check 

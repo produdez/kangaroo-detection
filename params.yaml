@@ -1,3 +1,5 @@
+gen-dag:
+  output: out/dependency_diagram.md
 environment:
   name: test-kangaroo
   output: out/environment-check.out.json

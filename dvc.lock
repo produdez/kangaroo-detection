@@ -109,3 +109,11 @@ stages:
     - path: out/evaluate.json
       md5: fa2fb0c62942e8188cebe0503eb55f28
       size: 176
+  gen-dag:
+    cmd:
+    - dvc dag --full --md >> out/dependency_diagram.md
+    - dvc dag -o --md >> out/dependency_diagram.md
+    outs:
+    - path: out/dependency_diagram.md
+      md5: f6d9d729e2f608ca04b6024281c0270c
+      size: 890
