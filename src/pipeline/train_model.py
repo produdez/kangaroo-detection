@@ -1,6 +1,7 @@
 from src.utils.arguments import setup_args
 args = setup_args({
 	'data_path' : 'Path of training data to load',
+	'train_size' : 'Training size',
 	'model_src' : 'Model\'s source code directory',
 	'model_config' : 'Model\'s configuration file',
 	'training_dir' : 'Training directory to save training checkpoints/logs !',
@@ -13,7 +14,10 @@ import sys
 sys.path.append(args['model_src'])
 
 from src.scripts.dataset import load_train_val
-train_set, val_set = load_train_val(args['data_path'])
+train_set, val_set = load_train_val({
+	'path' : args['data_path'],
+	'train_size' : int(args['train_size']),
+})
 
 
 from src.scripts.config import CustomConfig

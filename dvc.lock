@@ -1,12 +1,11 @@
 schema: '2.0'
 stages:
   environment-check:
-    cmd:
-    - python -m src.pipeline.environment_check --env_name=kangaroo > out/environment-check.out.txt
+    cmd: "python -m src.pipeline.environment_check  --env_name=test-kangaroo --output=out/environment-check.out.json\n"
     outs:
-    - path: out/environment-check.out.txt
-      md5: c3dbf49743c04f4ff7cb00ede3348837
-      size: 574
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
   activate-environment:
     cmd:
     - conda activate kangaroo
@@ -22,28 +21,91 @@ stages:
       md5: d41d8cd98f00b204e9800998ecf8427e
       size: 0
   train-model:
-    cmd: "python -m src.pipeline.train_model --data_path=\"data/kangaroo\" --model_src=\"\
-      src/submodules/akTwelve_MaskRCNN\" --model_config=\"./model.config.yaml\" >\
-      \ out/model-train.txt\n"
+    cmd: "python -u -m src.pipeline.train_model --data_path=\"data/sample\" --train_size=\"\
+      5\" --model_src=\"src/submodules/akTwelve_MaskRCNN\" --model_config=\"./model.config.yaml\"\
+      \ --training_dir=\"model/training\" --summary=\"out/model-train.summary.txt\"\
+      \ --model_output=\"out/current-model.h5\" --metric=\"out/train.json\" | tee\
+      \ out/model-train.output.log\n"
     deps:
-    - path: ./model.config.yaml
-      md5: ed1dde931e083a46c51642945a04de32
-      size: 406
-    - path: data/kangaroo
-      md5: 5cee4ad80d27b4d314c5d6b9fa1c25ce.dir
-      size: 19791935
-      nfiles: 329
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
     - path: model/transfer/mask_rcnn_coco.h5
       md5: e98aaff6f99e307b5e2a8a3ff741a518
       size: 257557808
-    - path: out/environment-check.out.txt
-      md5: c3dbf49743c04f4ff7cb00ede3348837
-      size: 574
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
+    - path: src/pipeline/train_model.py
+      md5: d6a83aee17363cd8ea769050cae906b8
+      size: 1709
     - path: src/submodules/akTwelve_MaskRCNN
-      md5: b23ca475d93fdf42973fddf6c512e7fe.dir
-      size: 90619720
-      nfiles: 78
+      md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
+      size: 90854634
+      nfiles: 87
+    params:
+      model.config.yaml:
+        train:
+          epochs: 1
+          layers: heads
+          model-config:
+            NAME: kangaroo_cfg
+            NUM_CLASSES: 2
+            STEPS_PER_EPOCH: 5
+            BACKBONE: resnet101
+            IMAGES_PER_GPU: 2
+            GPU_COUNT: 1
+          weights:
+            init: model/transfer/mask_rcnn_coco.h5
+            exclude:
+            - mrcnn_class_logits
+            - mrcnn_bbox_fc
+            - mrcnn_bbox
+            - mrcnn_mask
     outs:
-    - path: out/model-train.txt
-      md5: a23dec9544810e68b42212cb9308edcf
-      size: 557
+    - path: out/current-model.h5
+      md5: 2820bbf72309064abfc21479d3a1b5d9
+      size: 264294536
+    - path: out/model-train.output.log
+      md5: 1af6a4bbbba0891f9bb678bdd767b4f6
+      size: 5164
+    - path: out/model-train.summary.txt
+      md5: 28e1cb65aaa55d3cdb0e97a96ddd97cf
+      size: 89607
+    - path: out/train.json
+      md5: edb5964862f4baaeaa952af87277c90a
+      size: 26
+  evaluate:
+    cmd: "python -u -m src.pipeline.evaluate --data_path=\"data/sample\" --train_size=\"\
+      5\" --model_src=\"src/submodules/akTwelve_MaskRCNN\" --model_weight=out/current-model.h5\
+      \ --model_config=\"./model.config.yaml\" --evaluate_dir=\"model/evaluate\" --metric=\"\
+      out/evaluate.json\"\n"
+    deps:
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
+    - path: out/current-model.h5
+      md5: 2820bbf72309064abfc21479d3a1b5d9
+      size: 264294536
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
+    - path: src/pipeline/evaluate.py
+      md5: 6f6f4c73c070ace52ee95705a8c792fd
+      size: 1607
+    - path: src/submodules/akTwelve_MaskRCNN
+      md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
+      size: 90854634
+      nfiles: 87
+    params:
+      model.config.yaml:
+        test:
+          override-model-configs:
+            USE_MINI_MASK: false
+            IMAGES_PER_GPU: 1
+    outs:
+    - path: out/evaluate.json
+      md5: fa2fb0c62942e8188cebe0503eb55f28
+      size: 176

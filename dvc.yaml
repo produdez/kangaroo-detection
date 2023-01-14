@@ -1,25 +1,66 @@
 stages:
   environment-check:
-    cmd: 
-      - python -m src.pipeline.environment_check --env_name=${environment.name} > out/environment-check.out.txt
+    cmd: >
+      python -m src.pipeline.environment_check 
+      --env_name=${environment.name}
+      --output=${environment.output}
+    always_changed: true
     outs:
-      - out/environment-check.out.txt
-    always_changed: True
+      - ${environment.output}
 
   train-model:
-    cmd: > 
-      python -m src.pipeline.train_model
+    cmd: > # TODO: remove train_size in next update
+      python -u -m src.pipeline.train_model
       --data_path="${train.data.path}"
-      --model_src="${train.model.src}"
-      --model_config="${train.config}"
+      --train_size="${train.data.train_size}"
+      --model_src="${model.src}"
+      --model_config="${model.config}"
+      --training_dir="${train.train_dir}"
+      --summary="${train.summary}"
+      --model_output="${train.model.output}"
+      --metric="${train.output.metric}"
+      | tee ${train.output.log}
     deps:
-      # > out/model-train.txt
-      - out/environment-check.out.txt # previous stage dep
+      # previous stage
+      - ${environment.output}
+      # src code
+      - src/pipeline/train_model.py
+      - ${model.src}
+      # data/weight
       - ${train.data.path}
-      - ${train.model.src}
-      - ${train.config}
       - model/transfer/mask_rcnn_coco.h5
     outs:
-      - out/model-train.txt
-
-
+      - ${train.output.log}
+      - ${train.summary}:
+          persist: true
+      - ${train.model.output}:
+          persist: true
+    params:
+      - model.config.yaml: #! DANGER: DO NOT USE implicit name in params
+        - train
+    metrics:
+      - out/train.json
+  evaluate: # TODO: remove train_size in next update
+    cmd: >
+      python -u -m src.pipeline.evaluate
+      --data_path="${train.data.path}"
+      --train_size="${train.data.train_size}"
+      --model_src="${model.src}"
+      --model_weight=${train.model.output}
+      --model_config="${model.config}"
+      --evaluate_dir="${evaluate.evaluate_dir}"
+      --metric="${evaluate.output}"
+    deps:
+      # previous stage
+      - ${environment.output}
+      - ${train.model.output} #weight
+      # src code
+      - src/pipeline/evaluate.py
+      - ${model.src}
+      # data
+      - ${train.data.path}
+    params:
+      - model.config.yaml:
+        - test
+    metrics:
+      - ${evaluate.output}

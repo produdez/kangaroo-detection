@@ -1,9 +1,35 @@
 environment:
-  name: kangaroo
+  name: test-kangaroo
+  output: out/environment-check.out.json
+
+data:
+  main-data: &main-data
+    path: 'data/kangaroo'
+    size: 164
+    train_size: 150
+  sample-data: &sample-data
+    path: 'data/sample'
+    size: 10
+    train_size: 5
+  test-data: &test-data
+    path: 'data/kangaroo-kaggle'
+    size: 313
+    train_size: NULL
+
+model:
+  config: './model.config.yaml'
+  src: 'src/submodules/akTwelve_MaskRCNN'
 
 train:
-  config: './model.config.yaml'
   model: 
-    src: 'src/submodules/akTwelve_MaskRCNN'
-  data:
-    path: 'data/kangaroo'
+    output: 'out/current-model.h5'
+  data: *sample-data
+  train_dir: 'model/training'
+  output: 
+    log: 'out/model-train.output.log'
+    metric: 'out/train.json'
+  summary: 'out/model-train.summary.txt'
+
+evaluate:
+  evaluate_dir: 'model/evaluate'
+  output: 'out/evaluate.json'
