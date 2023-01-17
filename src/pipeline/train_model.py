@@ -1,42 +1,36 @@
-from src.utils.arguments import setup_args
-args = setup_args({
-	'data_path' : 'Path of training data to load',
-	'train_size' : 'Training size',
-	'model_src' : 'Model\'s source code directory',
-	'model_config' : 'Model\'s configuration file',
-	'training_dir' : 'Training directory to save training checkpoints/logs !',
-	'summary' : 'Summary file path',
-	'model_output' : 'Where to save finished training weights',
-	'metric' : 'Training time saved in json'
-})
+from src.utils.file import read_dvc_params
+dvc_params = read_dvc_params(__file__)
+pipeline_params = dvc_params['train-pipeline']
 
 import sys
-sys.path.append(args['model_src'])
+model_src = dvc_params['src']['current-model']
+sys.path.append(model_src)
 
 from src.scripts.dataset import load_train_val
-train_set, val_set = load_train_val({
-	'path' : args['data_path'],
-	'train_size' : int(args['train_size']),
-})
+train_set, val_set = load_train_val(pipeline_params['data'])
 
+
+training_params = dvc_params['train']
 
 from src.scripts.config import CustomConfig
-from src.utils.config import load_config
-config_dict = load_config(args['model_config'])['train']
-config = CustomConfig(config_dict['model-config'])
+config = CustomConfig(training_params['configs'])
 config.display()
 
 
 from mrcnn.model import MaskRCNN
-model = MaskRCNN(mode='training', model_dir=args['training_dir'], config=config)
-weight_config = config_dict['weights']
+model = MaskRCNN(
+	mode='training', 
+	model_dir=pipeline_params['train_dir'], 
+	config=config
+)
+weight_config = training_params['weights']
 model.load_weights(
 	weight_config['init'], 
 	by_name=True,
 	exclude=weight_config['exclude']
 )
 
-with open(args['summary'], 'w+') as f:
+with open(pipeline_params['summary'], 'w+') as f:
 	model.keras_model.summary(print_fn=lambda x: f.write(x + '\n'))
 
 from src.utils.benchmark import bench
@@ -45,15 +39,17 @@ training_benchmark = bench(
 	'Training', model.train,
 	train_set, val_set, 
 	learning_rate = config.LEARNING_RATE, 
-	epochs=config_dict['epochs'], 
-	layers = config_dict['layers']
+	epochs = training_params['epochs'], 
+	layers = training_params['layers']
 )
 
-model.keras_model.save_weights(args['model_output'])
+
+output_params = pipeline_params['output']
+model.keras_model.save_weights(output_params['model'])
 
 from src.utils.output import write_file
 metrics = {
 	'train_time': training_benchmark['time']
 }
-write_file(args['metric'], metrics, 'json')
+write_file(output_params['metric'], metrics, 'json')
 

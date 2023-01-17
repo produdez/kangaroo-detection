@@ -1,9 +1,5 @@
-gen-dag:
-  output: out/dependency_diagram.md
-environment:
-  name: test-kangaroo
-  output: out/environment-check.out.json
-
+# Ref: Yaml variable: https://stackoverflow.com/questions/4150782/use-yaml-with-variables
+# ---- Variables ----
 data:
   main-data: &main-data
     path: 'data/kangaroo'
@@ -18,20 +14,37 @@ data:
     size: 313
     train_size: NULL
 
-model:
-  config: './model.config.yaml'
-  src: 'src/submodules/akTwelve_MaskRCNN'
+# ---- Misc ----
+src:
+  current-model: 'src/submodules/akTwelve_MaskRCNN'
+  pipeline:
+    environment-check: 'src/pipeline/environment_check.py'
+    train-model: 'src/pipeline/train_model.py'
+    evaluate: 'src/pipeline/evaluate.py'
 
-train:
-  model: 
-    output: 'out/current-model.h5'
-  data: *sample-data
+# ---- Stages/Pipelines ----
+gen-dag:
+  output: out/dependency_diagram.md
+
+environment-check:
+  environment-name: test-kangaroo
+  output: out/environment-check.out.json
+
+train-pipeline:
+  data: &training-data 
+    <<: *sample-data 
   train_dir: 'model/training'
   output: 
+    model: &training-weight
+      'out/current-model.h5'
     log: 'out/model-train.output.log'
     metric: 'out/train.json'
   summary: 'out/model-train.summary.txt'
 
 evaluate:
+  data: *training-data
+  model-weight: *training-weight
   evaluate_dir: 'model/evaluate'
-  output: 'out/evaluate.json'
+  output: 
+    metric: 'out/evaluate.json'
+    log: 'out/evaluate.output.log'

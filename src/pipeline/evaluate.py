@@ -1,35 +1,27 @@
-from src.utils.arguments import setup_args
-
-args = setup_args({
-	'data_path' : 'Path of training data to load',
-	'train_size' : 'Path of training data to load',
-	'model_src' : 'Model\'s source code directory',
-	'model_weight': 'Model weight to load',
-	'model_config' : 'Model\'s configuration file',
-	'evaluate_dir' : 'Save inference checkpoints, ...',
-	'metric' : 'Output metrics file'
-})
+from src.utils.file import read_dvc_params
+dvc_params = read_dvc_params(__file__)
+pipeline_params = dvc_params['evaluate']
 
 import sys
-sys.path.append(args['model_src'])
+model_src = dvc_params['src']['current-model']
+sys.path.append(model_src)
 
 from src.scripts.dataset import load_train_val
-train_set, val_set = load_train_val({
-	'path' : args['data_path'],
-	'train_size' : int(args['train_size'])
-})
+train_set, val_set = load_train_val(pipeline_params['data'])
 
-from src.utils.config import load_config
+inference_params = dvc_params['inference']
+
 from src.scripts.config import CustomConfig
-config_dict = load_config(args['model_config'])
-model_config = config_dict['train']['model-config']
-model_config.update(config_dict['test']['override-model-configs'])
-config = CustomConfig(model_config)
+config = CustomConfig(inference_params['configs'])
 config.display()
 
 from mrcnn.model import MaskRCNN
-model = MaskRCNN(mode='inference', model_dir= args['evaluate_dir'], config= config)
-model.load_weights(args['model_weight'], by_name=True)
+model = MaskRCNN(
+	mode='inference', 
+	model_dir= pipeline_params['evaluate_dir'], 
+	config= config
+)
+model.load_weights(pipeline_params['model-weight'], by_name=True)
 
 from src.scripts.evaluate import evaluate_model
 from src.utils.benchmark import bench
@@ -47,6 +39,7 @@ for name, test_set in [('train', train_set), ('validation', val_set)]:
 			'mAP' : benchmark_result['result']
 	}
 
+output_params = pipeline_params['output']
 from src.utils.output import write_file
 print(evaluation_result)
-write_file(args['metric'], evaluation_result, 'json')
+write_file(output_params['metric'], evaluation_result, 'json')
