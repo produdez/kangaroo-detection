@@ -5,15 +5,16 @@ initial-weights: &transfer-weights
 default-configs: &default-configs
   NAME: 'kangaroo_cfg'
   NUM_CLASSES: 2
-  STEPS_PER_EPOCH: 5 # this for testing only
-  # STEPS_PER_EPOCH: 131 
+  # STEPS_PER_EPOCH: 5 # This for testing only
+  STEPS_PER_EPOCH: 131 
   BACKBONE: 'resnet101'
   IMAGES_PER_GPU: 2
   GPU_COUNT: 1
 
 # ---- Configs ----
 train:
-  epochs: 1 # TODO: change to 5 later
+  # epochs: 1 # This is for testing only
+  epochs: 5
   layers: 'heads'
   configs: *default-configs
   weights:
