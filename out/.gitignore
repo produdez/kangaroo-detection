@@ -1,0 +1,3 @@
+*.log
+current-model.h5
+!*.dvc

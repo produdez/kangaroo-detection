@@ -1,0 +1,4 @@
+outs:
+- md5: 51cd955e5cd2126049e7416c862ea60c
+  size: 264294536
+  path: current-model.h5
