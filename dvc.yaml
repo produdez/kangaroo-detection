@@ -1,3 +1,5 @@
+vars:
+  - data.yaml:main-data
 stages:
   gen-dag:
     cmd:
@@ -31,7 +33,7 @@ stages:
       - ${src.pipeline.train-model}
       - ${src.current-model}
       # data/weight
-      - ${train-pipeline.data.path}
+      - ${main-data.path}
       - ${initial-weights}
     outs:
       - ${train-pipeline.output.log}
