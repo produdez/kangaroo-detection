@@ -32,8 +32,8 @@ environment-check:
 
 train-pipeline:
   data: &training-data 
-    # <<: *sample-data 
-    <<: *main-data
+    <<: *sample-data 
+    # <<: *main-data
   train_dir: 'model/training'
   output: 
     model: &training-weight
