@@ -32,7 +32,7 @@ stages:
       - ${src.pipeline.train-model}
       - ${src.current-model}
       # data/weight
-      - ${main-data.path}
+      - ${sample-data.path}
       - ${initial-weights}
     outs:
       - ${train-pipeline.output.log}

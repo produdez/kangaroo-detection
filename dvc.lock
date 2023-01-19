@@ -32,10 +32,10 @@ stages:
   train-model:
     cmd: "python -u -m src.pipeline.train_model | tee out/model-train.output.log\n"
     deps:
-    - path: data/kangaroo
-      md5: 5cee4ad80d27b4d314c5d6b9fa1c25ce.dir
-      size: 19791935
-      nfiles: 329
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
     - path: model/transfer/mask_rcnn_coco.h5
       md5: e98aaff6f99e307b5e2a8a3ff741a518
       size: 257557808
@@ -54,9 +54,9 @@ stages:
         src.current-model: src/submodules/akTwelve_MaskRCNN
         train-pipeline:
           data:
-            path: data/kangaroo
-            size: 164
-            train_size: 150
+            path: data/sample
+            size: 10
+            train_size: 5
           train_dir: model/training
           output:
             model: out/current-model.h5
@@ -70,7 +70,7 @@ stages:
           configs:
             NAME: kangaroo_cfg
             NUM_CLASSES: 2
-            STEPS_PER_EPOCH: 131
+            STEPS_PER_EPOCH: 5
             BACKBONE: resnet101
             IMAGES_PER_GPU: 2
             GPU_COUNT: 1
@@ -83,26 +83,26 @@ stages:
             - mrcnn_mask
     outs:
     - path: out/current-model.h5
-      md5: 51cd955e5cd2126049e7416c862ea60c
+      md5: 26c957a2cfa7458b5ed299bc0d1797a3
       size: 264294536
     - path: out/model-train.output.log
-      md5: 6917a202a83bbc2b1bed58b3be319791
-      size: 156344
+      md5: 66777b106af8a9cd62f003dc3a82f129
+      size: 12166
     - path: out/model-train.summary.txt
       md5: 28e1cb65aaa55d3cdb0e97a96ddd97cf
       size: 89607
     - path: out/train.json
-      md5: 52fc9177302f60faa1c383a9e504d191
-      size: 27
+      md5: 732ebaefe968368f8169c240c5e3ef52
+      size: 26
   evaluate:
     cmd: "python -u -m src.pipeline.evaluate | tee out/evaluate.output.log\n"
     deps:
-    - path: data/kangaroo
-      md5: 5cee4ad80d27b4d314c5d6b9fa1c25ce.dir
-      size: 19791935
-      nfiles: 329
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
     - path: out/current-model.h5
-      md5: 51cd955e5cd2126049e7416c862ea60c
+      md5: 26c957a2cfa7458b5ed299bc0d1797a3
       size: 264294536
     - path: out/environment-check.out.json
       md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
@@ -118,9 +118,9 @@ stages:
       params.yaml:
         evaluate:
           data:
-            path: data/kangaroo
-            size: 164
-            train_size: 150
+            path: data/sample
+            size: 10
+            train_size: 5
           model-weight: out/current-model.h5
           evaluate_dir: model/evaluate
           output:
@@ -132,20 +132,20 @@ stages:
           configs:
             NAME: kangaroo_cfg
             NUM_CLASSES: 2
-            STEPS_PER_EPOCH: 131
+            STEPS_PER_EPOCH: 5
             BACKBONE: resnet101
             IMAGES_PER_GPU: 1
             GPU_COUNT: 1
             USE_MINI_MASK: false
     outs:
     - path: out/evaluate.json
-      md5: 901c835c2ec6669a251c1af72368beb7
-      size: 174
+      md5: e9c1edd53e8d23d841de84e9c64e90f6
+      size: 176
   gen-dag:
     cmd:
     - dvc dag --full --md >> out/dependency_diagram.md
     - dvc dag -o --md >> out/dependency_diagram.md
     outs:
     - path: out/dependency_diagram.md
-      md5: 88d6c4d40cb3b437034d47d5e4296947
-      size: 1002
+      md5: ea351e47db38610a614f11fbf660973b
+      size: 1053

@@ -7,8 +7,8 @@ shit-weights: &transfer-weights
 default-configs: &default-configs
   NAME: 'kangaroo_cfg'
   NUM_CLASSES: 2
-  # STEPS_PER_EPOCH: 5 # This for testing only
-  STEPS_PER_EPOCH: 131 
+  STEPS_PER_EPOCH: 5 # This for testing only
+  # STEPS_PER_EPOCH: 131 
   BACKBONE: 'resnet101'
   IMAGES_PER_GPU: 2
   GPU_COUNT: 1
