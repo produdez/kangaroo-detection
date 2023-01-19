@@ -21,7 +21,7 @@ stages:
   train-model:
     vars:
       - model.hyper.yaml:initial-weights
-      - data.yaml:main-data
+      - data.yaml
     cmd: >
       python -u -m src.pipeline.train_model
       | tee ${train-pipeline.output.log}
