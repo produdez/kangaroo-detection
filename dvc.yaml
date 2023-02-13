@@ -46,7 +46,7 @@ stages:
       - model.hyper.yaml: #! DANGER: DO NOT USE implicit name in params
         - train
     metrics:
-      - ${train-pipeline.output.metric}
+      - ${train-pipeline.output.metric.folder}${train-pipeline.output.metric.general}
   evaluate:
     cmd: >
       python -u -m src.pipeline.evaluate
@@ -67,3 +67,14 @@ stages:
         - inference
     metrics:
       - ${evaluate.output.metric}
+
+# plots
+plots:
+  - loss_bounding_box:
+      title: MaskRCNN on BBox
+      template: linear
+      y: 
+        out/train.metrics/epoch_mrcnn_bbox_loss.json: value
+        out/train.metrics/epoch_val_mrcnn_bbox_loss.json: value
+      x_label: 'Epoch'
+      y_label: 'Loss'

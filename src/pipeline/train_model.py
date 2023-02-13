@@ -47,18 +47,32 @@ training_benchmark = bench(
 output_params = pipeline_params['output']
 model.keras_model.save_weights(output_params['model'])
 
-from src.utils.output import write_file
-metrics = {
+from src.utils.output import write_file, check_create
+general_metrics = {
 	'train_time': training_benchmark['time']
 }
+
+metric_output_folder = output_params['metric']['folder']
+check_create(metric_output_folder)
+write_file(output_params['metric']['general'], general_metrics, formatter='json', folder=metric_output_folder)
 
 # Get other training metrics wrote in the log folder (TensorBoard)
 from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
 event_acc = EventAccumulator(model.log_dir)
 event_acc.Reload()
-for metric_name in event_acc.Tags()['scalars']:
-	metrics[metric_name] = event_acc.Scalars(metric_name)
+
+keys = ['timestamp', 'iteration', 'value']
+# ! we actually only care about bounding box loss for this project
+other_metrics = output_params['metric']['others']
+for metric_name in other_metrics:
+	metric = {
+		metric_name: [
+			dict(zip(keys ,values))
+			for values in event_acc.Scalars(metric_name)
+		]
+	}
+	write_file(metric_name + '.json', metric, 'json', metric_output_folder)
 
 
-write_file(output_params['metric'], metrics, 'json')
+
 

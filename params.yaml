@@ -39,7 +39,13 @@ train-pipeline:
     model: &training-weight
       'out/current-model.h5'
     log: 'out/model-train.output.log'
-    metric: 'out/train.json'
+    metric: 
+      folder: out/train.metrics/
+      general: 'general.json'
+      others: 
+        - epoch_mrcnn_bbox_loss
+        - epoch_val_mrcnn_bbox_loss
+
   summary: 'out/model-train.summary.txt'
 
 evaluate:
@@ -49,12 +55,3 @@ evaluate:
   output: 
     metric: 'out/evaluate.json'
     log: 'out/evaluate.output.log'
-
-# plots
-plots:
-  - MRCNN_BBOX_LOSS:
-      template: linear
-      x: 
-        out/train.json: epoch_mrcnn_bbox_loss[1]
-      y:
-        out/train.json: epoch_mrcnn_bbox_loss[2]

@@ -43,8 +43,8 @@ stages:
       md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
       size: 374
     - path: src/pipeline/train_model.py
-      md5: e1bdae7ad141d14d3a0d8682c55dae88
-      size: 1728
+      md5: 6e2dd81d844828d42e9c2e2a5de22e30
+      size: 2192
     - path: src/submodules/akTwelve_MaskRCNN
       md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
       size: 90854634
@@ -61,7 +61,12 @@ stages:
           output:
             model: out/current-model.h5
             log: out/model-train.output.log
-            metric: out/train.json
+            metric:
+              folder: out/train.metrics/
+              general: general.json
+              others:
+              - epoch_mrcnn_bbox_loss
+              - epoch_val_mrcnn_bbox_loss
           summary: out/model-train.summary.txt
       model.hyper.yaml:
         train:
@@ -83,17 +88,17 @@ stages:
             - mrcnn_mask
     outs:
     - path: out/current-model.h5
-      md5: 48a39f7d3d0457a2a338e08784e3c55d
+      md5: 830f8e397d40067fc4edf591d194c244
       size: 264294536
     - path: out/model-train.output.log
-      md5: 61c38ce387c5dc8506732293d6c8e895
-      size: 19812
+      md5: b70fa1c66a1384e8e95815c315b43d5f
+      size: 20090
     - path: out/model-train.summary.txt
       md5: 28e1cb65aaa55d3cdb0e97a96ddd97cf
       size: 89607
-    - path: out/train.json
-      md5: ee231115732129c8de2cdfefe8d44ddd
-      size: 9878
+    - path: out/train.metrics/general.json
+      md5: 53c5e32e6bfedff9d54ba1a1d966d6f3
+      size: 27
   evaluate:
     cmd: "python -u -m src.pipeline.evaluate | tee out/evaluate.output.log\n"
     deps:
@@ -102,7 +107,7 @@ stages:
       size: 635162
       nfiles: 18
     - path: out/current-model.h5
-      md5: 48a39f7d3d0457a2a338e08784e3c55d
+      md5: 830f8e397d40067fc4edf591d194c244
       size: 264294536
     - path: out/environment-check.out.json
       md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
@@ -139,7 +144,7 @@ stages:
             USE_MINI_MASK: false
     outs:
     - path: out/evaluate.json
-      md5: 96662a3ce5ea3449f94d2dd79231368b
+      md5: eb364234911f86980602490770b3f307
       size: 176
   gen-dag:
     cmd:
@@ -147,5 +152,5 @@ stages:
     - dvc dag -o --md >> out/dependency_diagram.md
     outs:
     - path: out/dependency_diagram.md
-      md5: ea351e47db38610a614f11fbf660973b
-      size: 1053
+      md5: 787a06c15b8649bfd81d33179f067ef2
+      size: 1069
