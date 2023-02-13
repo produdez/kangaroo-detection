@@ -43,8 +43,8 @@ stages:
       md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
       size: 374
     - path: src/pipeline/train_model.py
-      md5: 3ec2de648e8394b068db68aa02f84a2c
-      size: 1399
+      md5: e1bdae7ad141d14d3a0d8682c55dae88
+      size: 1728
     - path: src/submodules/akTwelve_MaskRCNN
       md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
       size: 90854634
@@ -65,7 +65,7 @@ stages:
           summary: out/model-train.summary.txt
       model.hyper.yaml:
         train:
-          epochs: 5
+          epochs: 10
           layers: heads
           configs:
             NAME: kangaroo_cfg
@@ -83,17 +83,17 @@ stages:
             - mrcnn_mask
     outs:
     - path: out/current-model.h5
-      md5: 26c957a2cfa7458b5ed299bc0d1797a3
+      md5: 48a39f7d3d0457a2a338e08784e3c55d
       size: 264294536
     - path: out/model-train.output.log
-      md5: 66777b106af8a9cd62f003dc3a82f129
-      size: 12166
+      md5: 61c38ce387c5dc8506732293d6c8e895
+      size: 19812
     - path: out/model-train.summary.txt
       md5: 28e1cb65aaa55d3cdb0e97a96ddd97cf
       size: 89607
     - path: out/train.json
-      md5: 732ebaefe968368f8169c240c5e3ef52
-      size: 26
+      md5: ee231115732129c8de2cdfefe8d44ddd
+      size: 9878
   evaluate:
     cmd: "python -u -m src.pipeline.evaluate | tee out/evaluate.output.log\n"
     deps:
@@ -102,7 +102,7 @@ stages:
       size: 635162
       nfiles: 18
     - path: out/current-model.h5
-      md5: 26c957a2cfa7458b5ed299bc0d1797a3
+      md5: 48a39f7d3d0457a2a338e08784e3c55d
       size: 264294536
     - path: out/environment-check.out.json
       md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
@@ -139,7 +139,7 @@ stages:
             USE_MINI_MASK: false
     outs:
     - path: out/evaluate.json
-      md5: e9c1edd53e8d23d841de84e9c64e90f6
+      md5: 96662a3ce5ea3449f94d2dd79231368b
       size: 176
   gen-dag:
     cmd:

@@ -30,6 +30,23 @@ def get_xml_int(xml_element, name):
 
 	return int(str_value)
 
+def extract_boxes(annotation_path):
+	xml_tree = ElementTree.parse(annotation_path)
+	annotation = xml_tree.getroot()
+
+	boxes = []
+	for box in annotation.iter('bndbox'):
+		xmin = get_xml_int(box, 'xmin')
+		ymin = get_xml_int(box, 'ymin')
+		xmax = get_xml_int(box, 'xmax')
+		ymax = get_xml_int(box, 'ymax')
+		coordinates = [xmin, ymin, xmax, ymax]
+		boxes.append(coordinates)
+	width = get_xml_int(annotation, './/size/width')
+	height = get_xml_int(annotation, './/size/height')
+
+	return boxes, width, height
+
 class KangarooDataset(Dataset):
 	def __init__(self, train_size, debug = False, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -69,24 +86,12 @@ class KangarooDataset(Dataset):
 			pprint(self.image_info)
 
 	def extract_boxes(self, annotation_path):
-		xml_tree = ElementTree.parse(annotation_path)
-		annotation = xml_tree.getroot()
-
-		boxes = []
-		for box in annotation.iter('bndbox'):
-			xmin = get_xml_int(box, 'xmin')
-			ymin = get_xml_int(box, 'ymin')
-			xmax = get_xml_int(box, 'xmax')
-			ymax = get_xml_int(box, 'ymax')
-			coordinates = [xmin, ymin, xmax, ymax]
-			boxes.append(coordinates)
-		width = get_xml_int(annotation, './/size/width')
-		height = get_xml_int(annotation, './/size/height')
-
+		boxes, width, height = extract_boxes(annotation_path)
 		if self.debug: 
 			print(f'width: {width}, height: {height}, boxes: ')
 			pprint(boxes)
 		return boxes, width, height
+
 	def load_mask(self,image_id): 
 		info = self.image_info[image_id]
 		annotation_path = info['annotation']

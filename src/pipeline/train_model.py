@@ -51,5 +51,14 @@ from src.utils.output import write_file
 metrics = {
 	'train_time': training_benchmark['time']
 }
+
+# Get other training metrics wrote in the log folder (TensorBoard)
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+event_acc = EventAccumulator(model.log_dir)
+event_acc.Reload()
+for metric_name in event_acc.Tags()['scalars']:
+	metrics[metric_name] = event_acc.Scalars(metric_name)
+
+
 write_file(output_params['metric'], metrics, 'json')
 

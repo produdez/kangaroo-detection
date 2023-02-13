@@ -49,3 +49,12 @@ evaluate:
   output: 
     metric: 'out/evaluate.json'
     log: 'out/evaluate.output.log'
+
+# plots
+plots:
+  - MRCNN_BBOX_LOSS:
+      template: linear
+      x: 
+        out/train.json: epoch_mrcnn_bbox_loss[1]
+      y:
+        out/train.json: epoch_mrcnn_bbox_loss[2]

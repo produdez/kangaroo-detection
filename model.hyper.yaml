@@ -16,7 +16,8 @@ default-configs: &default-configs
 # ---- Configs ----
 train:
   # epochs: 1 # This is for testing only
-  epochs: 5
+  # epochs: 5
+  epochs: 10
   layers: 'heads'
   configs: *default-configs
   weights:
