@@ -1,12 +1,8 @@
+# Environment Setups
+
 ## Note
 
 Experiments are done on window laptop with GTX 1060.
-
-### Scripts
-
-> in `/scripts
-
-- `verify_gpu.py`: check if gpu exists
 
 ## Quick start
 
@@ -29,42 +25,61 @@ For GPU computation and basic needs
 
 `Our environment will be named 'kangaroo'`
 
-1. Python: 3.7
+1. Python: 3.8
 
    ```[bash]
-   conda create -n kangaroo python=3.7
+   conda create -n kangaroo python=3.8
    ```
-
-    > I also recommend python 3.7 for compatibility purposes (from personal experience)
 
 2. Activate: `conda activate kangaroo`
 3. Check python version
 
     ```[bash]
     python --version
-    > Python 3.7.15
+    > Python 3.8.15
     ```
 
-4. Ipykernel: `conda install ipykernel`
-5. ⭐ Tensorflow-GPU:
+4. ⭐ Tensorflow-GPU:
 
     ```[bash]
-    conda install tensorflow-gpu==2.1.0
+    conda install tensorflow-gpu==2.5.0
     ```
 
-    > current version as of now (2.3.0) does not work for my system
+    > (2.3.0) does not work !! at all
     > This install also included numpy (and keras)
 
-6. Verify install with `/notebooks/test-gpu.ipynb`
+5. (Optional) Check and sync/downgrade `tensorflow-base` version
+   To match with tensorflow version
+
+   ```[bash]
+   conda install tensorflow-base==2.5.0
+   ```
+
+6. Verify installation packages recognizes your GPU
+
+   ```[bash]
+    python src/scripts/verify_gpu.py 
+   ```
+
+7. Continue install all other packages
 
 ### Other packages
 
-Other used packages
+Exception:
 
-1. `Mask_RCNN`: [Link](https://github.com/jbrownlee/Mask_RCNN)
-2. `Pillow`: Image loading/processing (also the base of `Keras` Image)
-3. `sk-image`: (**!** version: `0.16.2`)
-4. `pycocotools`: Needed for training on windows (`pip`)
+   1. `Mask_RCNN`: [Link](https://github.com/jbrownlee/Mask_RCNN)
+
+Other used packages:
+
+```[bash]
+  conda install -c conda-forge [packages]
+```
+
+   1. `Pillow`: Image loading/processing (also the base of `Keras` Image)
+   2. `scikit-image`: (**!** version: `0.16.2`)
+   3. `ipykernel`
+   4. `pycocotools`: Needed for training on windows (`pip`)
+   5. `dvc`
 
 ### Errors and Fixes
 
@@ -89,3 +104,10 @@ Other used packages
 - Tensorflow 2.1 conflict with `h5py`
   - [Ref](https://github.com/tensorflow/tensorflow/issues/44467)
   - [Solve](https://stackoverflow.com/questions/53740577/does-any-one-got-attributeerror-str-object-has-no-attribute-decode-whi): use `h5py` ver 2.10.0 
+
+# Other versions tested
+
+**1:**
+
+- python 3.7
+- tensorflow-gpu 2.1.0

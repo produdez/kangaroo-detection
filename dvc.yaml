@@ -1,0 +1,80 @@
+stages:
+  gen-dag:
+    cmd:
+      - dvc dag --full --md >> ${gen-dag.output}
+      - dvc dag -o --md >> ${gen-dag.output}
+    always_changed: true
+    outs:
+      - ${gen-dag.output}
+
+  environment-check:
+    cmd: >
+      python -m src.pipeline.environment_check
+    always_changed: true
+    deps:
+      - ${src.pipeline.environment-check}
+    outs:
+      - ${environment-check.output}
+    params:
+      - environment-check
+
+  train-model:
+    vars:
+      - model.hyper.yaml:initial-weights
+      - data.yaml
+    cmd: >
+      python -u -m src.pipeline.train_model
+      | tee ${train-pipeline.output.log}
+    deps:
+      # previous stage
+      - ${environment-check.output}
+      # src code
+      - ${src.pipeline.train-model}
+      - ${src.current-model}
+      # data/weight
+      - ${sample-data.path}
+      - ${initial-weights}
+    outs:
+      - ${train-pipeline.output.log}
+      - ${train-pipeline.summary}:
+          persist: true
+      - ${train-pipeline.output.model}:
+          persist: true
+    params:
+      - src.current-model
+      - train-pipeline
+      - model.hyper.yaml: #! DANGER: DO NOT USE implicit name in params
+        - train
+    metrics:
+      - ${train-pipeline.output.metric.folder}${train-pipeline.output.metric.general}
+  evaluate:
+    cmd: >
+      python -u -m src.pipeline.evaluate
+      | tee ${evaluate.output.log}
+    deps:
+      # previous stage
+      - ${environment-check.output}
+      - ${evaluate.model-weight} #weight
+      # src code
+      - ${src.pipeline.evaluate}
+      - ${src.current-model}
+      # data
+      - ${evaluate.data.path}
+    params:
+      - evaluate
+      - src.current-model
+      - model.hyper.yaml:
+        - inference
+    metrics:
+      - ${evaluate.output.metric}
+
+# plots
+plots:
+  - loss_bounding_box:
+      title: MaskRCNN on BBox
+      template: linear
+      y: 
+        out/train.metrics/epoch_mrcnn_bbox_loss.json: value
+        out/train.metrics/epoch_val_mrcnn_bbox_loss.json: value
+      x_label: 'Epoch'
+      y_label: 'Loss'
