@@ -21,7 +21,6 @@ stages:
   train-model:
     vars:
       - model.hyper.yaml:initial-weights
-      - data.yaml
     cmd: >
       python -u -m src.pipeline.train_model
       | tee ${train-pipeline.output.log}
@@ -30,8 +29,9 @@ stages:
       - ${environment-check.output}
       # src code
       - ${src.pipeline.train-model}
-      # data/weight
-      - ${sample-data.path}
+      # data
+      - ${train-pipeline.data.path}
+      # weight
       - ${initial-weights}
     outs:
       - ${train-pipeline.output.log}
