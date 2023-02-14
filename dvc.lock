@@ -1,0 +1,156 @@
+schema: '2.0'
+stages:
+  environment-check:
+    cmd: "python -m src.pipeline.environment_check\n"
+    deps:
+    - path: src/pipeline/environment_check.py
+      md5: 5f2f2cdc83c8bb4023ab08b15907b0cd
+      size: 636
+    params:
+      params.yaml:
+        environment-check:
+          environment-name: test-kangaroo
+          output: out/environment-check.out.json
+    outs:
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
+  activate-environment:
+    cmd:
+    - conda activate kangaroo
+    - echo %CONDA_DEFAULT_ENV% > out/activate-environment.out.log
+    outs:
+    - path: out/activate-environment.out.log
+      md5: ee9e762dca463f22b5e8ec0f982f5b63
+      size: 22
+  activate:
+    cmd: conda activate kangaroo > out/activate-environment.out.log
+    outs:
+    - path: out/activate-environment.out.log
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+  train-model:
+    cmd: "python -u -m src.pipeline.train_model | tee out/model-train.output.log\n"
+    deps:
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
+    - path: model/transfer/mask_rcnn_coco.h5
+      md5: e98aaff6f99e307b5e2a8a3ff741a518
+      size: 257557808
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
+    - path: src/pipeline/train_model.py
+      md5: 6e2dd81d844828d42e9c2e2a5de22e30
+      size: 2192
+    - path: src/submodules/akTwelve_MaskRCNN
+      md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
+      size: 90854634
+      nfiles: 87
+    params:
+      params.yaml:
+        src.current-model: src/submodules/akTwelve_MaskRCNN
+        train-pipeline:
+          data:
+            path: data/sample
+            size: 10
+            train_size: 5
+          train_dir: model/training
+          output:
+            model: out/current-model.h5
+            log: out/model-train.output.log
+            metric:
+              folder: out/train.metrics/
+              general: general.json
+              others:
+              - epoch_mrcnn_bbox_loss
+              - epoch_val_mrcnn_bbox_loss
+          summary: out/model-train.summary.txt
+      model.hyper.yaml:
+        train:
+          epochs: 10
+          layers: heads
+          configs:
+            NAME: kangaroo_cfg
+            NUM_CLASSES: 2
+            STEPS_PER_EPOCH: 5
+            BACKBONE: resnet101
+            IMAGES_PER_GPU: 2
+            GPU_COUNT: 1
+          weights:
+            init: model/transfer/mask_rcnn_coco.h5
+            exclude:
+            - mrcnn_class_logits
+            - mrcnn_bbox_fc
+            - mrcnn_bbox
+            - mrcnn_mask
+    outs:
+    - path: out/current-model.h5
+      md5: 830f8e397d40067fc4edf591d194c244
+      size: 264294536
+    - path: out/model-train.output.log
+      md5: b70fa1c66a1384e8e95815c315b43d5f
+      size: 20090
+    - path: out/model-train.summary.txt
+      md5: 28e1cb65aaa55d3cdb0e97a96ddd97cf
+      size: 89607
+    - path: out/train.metrics/general.json
+      md5: 53c5e32e6bfedff9d54ba1a1d966d6f3
+      size: 27
+  evaluate:
+    cmd: "python -u -m src.pipeline.evaluate | tee out/evaluate.output.log\n"
+    deps:
+    - path: data/sample
+      md5: 168cfd022598b30c5f1981bec5ac18ec.dir
+      size: 635162
+      nfiles: 18
+    - path: out/current-model.h5
+      md5: 830f8e397d40067fc4edf591d194c244
+      size: 264294536
+    - path: out/environment-check.out.json
+      md5: 367ad52e2a3039d04f2dc57bbd7b5e6e
+      size: 374
+    - path: src/pipeline/evaluate.py
+      md5: b297f480db0def6101b5c97ab475edb6
+      size: 1261
+    - path: src/submodules/akTwelve_MaskRCNN
+      md5: cb9c0f33c3ac515d65f4b54d556435e2.dir
+      size: 90854634
+      nfiles: 87
+    params:
+      params.yaml:
+        evaluate:
+          data:
+            path: data/sample
+            size: 10
+            train_size: 5
+          model-weight: out/current-model.h5
+          evaluate_dir: model/evaluate
+          output:
+            metric: out/evaluate.json
+            log: out/evaluate.output.log
+        src.current-model: src/submodules/akTwelve_MaskRCNN
+      model.hyper.yaml:
+        inference:
+          configs:
+            NAME: kangaroo_cfg
+            NUM_CLASSES: 2
+            STEPS_PER_EPOCH: 5
+            BACKBONE: resnet101
+            IMAGES_PER_GPU: 1
+            GPU_COUNT: 1
+            USE_MINI_MASK: false
+    outs:
+    - path: out/evaluate.json
+      md5: eb364234911f86980602490770b3f307
+      size: 176
+  gen-dag:
+    cmd:
+    - dvc dag --full --md >> out/dependency_diagram.md
+    - dvc dag -o --md >> out/dependency_diagram.md
+    outs:
+    - path: out/dependency_diagram.md
+      md5: 787a06c15b8649bfd81d33179f067ef2
+      size: 1069
