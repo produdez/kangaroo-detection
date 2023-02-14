@@ -91,6 +91,9 @@ Other used packages:
    3. `ipykernel`
    4. `pycocotools`: Needed for training on windows (`pip`)
    5. `dvc`
+   6. `imgaug`: image augmentation frame work used by MRCNN training method
+   7. `imageio`: helper image reading lib
+   8. `pandas`: data frame manipulation (test related purposes)
 
 ### Errors and Fixes
 
@@ -108,13 +111,16 @@ Other used packages:
   - Error output: `Input image dtype is bool. Interpolation is not defined with bool data type`
   - Ref/Suggestions: [here](https://github.com/matterport/Mask_RCNN/issues/2243)
   - Resolve: down grade `scikit-image` from `0.19.3` to `0.16.2`
+  - Note: but don't just downgrade it, force uninstall/reinstall with
+    - `conda install ... --force-reinstall`
+    - Or `pip install -U ...`
 
 - Getting stuck with Error `No module named 'tensorflow_core.estimator'`
   - Reasons/Discussion: [here](https://stackoverflow.com/questions/66022256/modulenotfounderror-no-module-named-tensorflow-core-estimator-for-tensorflow)
   - Resolve: downgrade tensorflow-estimator to same version as tensorflow
 - Tensorflow 2.1 conflict with `h5py`
   - [Ref](https://github.com/tensorflow/tensorflow/issues/44467)
-  - [Solve](https://stackoverflow.com/questions/53740577/does-any-one-got-attributeerror-str-object-has-no-attribute-decode-whi): use `h5py` ver 2.10.0 
+  - [Solve](https://stackoverflow.com/questions/53740577/does-any-one-got-attributeerror-str-object-has-no-attribute-decode-whi): use `h5py` ver 2.10.0
 
 # Other versions tested
 
