@@ -1,8 +1,6 @@
 # --- Vars ----
-initial-weights:
-  'model/transfer/mask_rcnn_coco.h5'
-shit-weights: &transfer-weights
-  'model/transfer/mask_rcnn_coco.h5'
+initial-weights: &transfer-weights
+  model/transfer/mask_rcnn_coco.h5
 
 default-configs: &default-configs
   NAME: 'kangaroo_cfg'
