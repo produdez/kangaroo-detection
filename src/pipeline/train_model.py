@@ -29,6 +29,11 @@ model.load_weights(
 with open(pipeline_params['summary'], 'w+') as f:
 	model.keras_model.summary(print_fn=lambda x: f.write(x + '\n'))
 
+from src.scripts.augmentation import load_augmenter
+augmentation = load_augmenter(training_params['augmentation'])
+print('--------Augmentations: --------')
+print(augmentation)
+print('--------------------------------')
 from src.utils.benchmark import bench
 
 training_benchmark = bench(
@@ -36,7 +41,8 @@ training_benchmark = bench(
 	train_set, val_set, 
 	learning_rate = config.LEARNING_RATE, 
 	epochs = training_params['epochs'], 
-	layers = training_params['layers']
+	layers = training_params['layers'],
+	augmentation = augmentation
 )
 
 

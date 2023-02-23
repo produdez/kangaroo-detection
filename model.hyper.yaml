@@ -3,30 +3,76 @@ initial-weights: &transfer-weights
   model/transfer/mask_rcnn_coco.h5
 
 default-configs: &default-configs
-  NAME: 'kangaroo_cfg'
+  NAME: kangaroo_cfg
   NUM_CLASSES: 2
   STEPS_PER_EPOCH: 5 # This for testing only
-  # STEPS_PER_EPOCH: 131 
-  BACKBONE: 'resnet101'
+  # STEPS_PER_EPOCH: 131 # ! dangerous
+  BACKBONE: resnet101
   IMAGES_PER_GPU: 2
   GPU_COUNT: 1
 
 # ---- Configs ----
 train:
-  # epochs: 1 # This is for testing only
-  # epochs: 5
-  epochs: 10
-  layers: 'heads'
+  epochs: 1 # This is for testing only
+  # epochs: 10 # ! dangerous
+  layers: heads
   configs: *default-configs
   weights:
     init: *transfer-weights
-    exclude: 
-      - 'mrcnn_class_logits'
-      - 'mrcnn_bbox_fc'
-      - 'mrcnn_bbox'
-      - 'mrcnn_mask'
+    exclude:
+    - mrcnn_class_logits
+    - mrcnn_bbox_fc
+    - mrcnn_bbox
+    - mrcnn_mask
+  augmentation: # sequence
+    name: Sequential
+    use: true
+    nested: true
+    nested-arg: children
+    augmenters: 
+      flip-lr:
+        name: Fliplr
+        use: true
+        params:
+          p: 0.5
+      flip-ud:
+        name: Flipud
+        use: false
+        params:
+          p: 0.5
+      affine:
+        name: Affine
+        use: false
+        params:
+          translate_percent:
+            x: [-0.2, 0.2]
+            y: [-0.2, 0.2]
+          rotate: [-30, 30]
+          scale: [0.5, 1.5]
+      sometimes:
+        name: Sometimes
+        use: true
+        nested: true
+        nested-arg: then_list
+        augmenters: 
+          gaussian-blur:
+            name: GaussianBlur
+            use: true
+            params:
+              sigma: [0.0, 3.0]
+        params:
+          p: 0.5
+    params:
+      random_order: true
+
+
 inference:
-  configs: 
+  configs:
     <<: *default-configs
-    USE_MINI_MASK: False
+    USE_MINI_MASK: false
     IMAGES_PER_GPU: 1
+    NAME: kangaroo_cfg
+    NUM_CLASSES: 2
+    STEPS_PER_EPOCH: 5
+    BACKBONE: resnet101
+    GPU_COUNT: 1
