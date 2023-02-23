@@ -30,7 +30,6 @@ stages:
       - ${environment-check.output}
       # src code
       - ${src.pipeline.train-model}
-      - ${src.current-model}
       # data/weight
       - ${sample-data.path}
       - ${initial-weights}
@@ -41,7 +40,6 @@ stages:
       - ${train-pipeline.output.model}:
           persist: true
     params:
-      - src.current-model
       - train-pipeline
       - model.hyper.yaml: #! DANGER: DO NOT USE implicit name in params
         - train
@@ -57,12 +55,10 @@ stages:
       - ${evaluate.model-weight} #weight
       # src code
       - ${src.pipeline.evaluate}
-      - ${src.current-model}
       # data
       - ${evaluate.data.path}
     params:
       - evaluate
-      - src.current-model
       - model.hyper.yaml:
         - inference
     metrics:
