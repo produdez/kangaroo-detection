@@ -48,21 +48,27 @@ For GPU computation and basic needs
     > (2.3.0) does not work !! at all
     > This install also included numpy (and keras)
 
-5. (Optional) Check and sync/downgrade `tensorflow-base` version
+5. (Extra) Install `cuda-nvcc` (Reference errors and fixes)
+
+   ```[bash]
+    conda install -c nvidia cuda-nvcc
+   ```
+
+6. (Optional) Check and sync/downgrade `tensorflow-base` version
    To match with tensorflow version
 
    ```[bash]
    conda install tensorflow-base==2.5.0
    ```
 
-6. Verify installation packages recognizes your GPU
+7. Verify installation packages recognizes your GPU
 
    ```[bash]
     python src/scripts/verify_gpu.py 
    ```
 
-7. Continue install all other packages
-8. Clone submodule and install Mask-RCNN
+8. Continue install all other packages
+9.  Clone submodule and install Mask-RCNN
 
    ```[bash]
     # clone
@@ -121,6 +127,10 @@ Other used packages:
 - Tensorflow 2.1 conflict with `h5py`
   - [Ref](https://github.com/tensorflow/tensorflow/issues/44467)
   - [Solve](https://stackoverflow.com/questions/53740577/does-any-one-got-attributeerror-str-object-has-no-attribute-decode-whi): use `h5py` ver 2.10.0
+- Warining: `Internal: Failed to launch ptxas`
+  - Fix by installing `cuda-nvcc`
+  - This warning comes after an error: `Call to CreateProcess failed. Error code: 2`
+  - Reference: [Link](https://stackoverflow.com/questions/66623541/tensorflow-2-4-1-couldnt-invoke-ptxas-exe)
 
 # Other versions tested
 
