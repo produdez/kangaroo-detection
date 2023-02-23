@@ -62,6 +62,17 @@ For GPU computation and basic needs
    ```
 
 7. Continue install all other packages
+8. Clone submodule and install Mask-RCNN
+
+   ```[bash]
+    # clone
+    git submodule init
+    git submodule update
+
+    # install
+    cd src/submodules/akTwelve_MaskRCNN
+    python setup.py install
+   ```
 
 ### Other packages
 
