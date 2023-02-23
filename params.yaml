@@ -16,7 +16,6 @@ data:
 
 # ---- Misc ----
 src:
-  current-model: 'src/submodules/akTwelve_MaskRCNN'
   pipeline:
     environment-check: 'src/pipeline/environment_check.py'
     train-model: 'src/pipeline/train_model.py'
@@ -27,7 +26,7 @@ gen-dag:
   output: out/dependency_diagram.md
 
 environment-check:
-  environment-name: test-kangaroo
+  environment-name: kangaroo
   output: out/environment-check.out.json
 
 train-pipeline:

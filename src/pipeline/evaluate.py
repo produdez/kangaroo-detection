@@ -2,10 +2,6 @@ from src.utils.file import read_dvc_params
 dvc_params = read_dvc_params(__file__)
 pipeline_params = dvc_params['evaluate']
 
-import sys
-model_src = dvc_params['src']['current-model']
-sys.path.append(model_src)
-
 from src.scripts.dataset import load_train_val
 train_set, val_set = load_train_val(pipeline_params['data'])
 
